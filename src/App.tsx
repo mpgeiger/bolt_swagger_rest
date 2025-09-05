@@ -92,6 +92,10 @@ function App() {
 
     const startTime = performance.now();
     try {
+      // For deployment, we need to handle the API endpoint differently
+      // Since this is a static deployment, we'll show a message about the API being unavailable
+      throw new Error('API endpoint not available in static deployment. This demo requires a backend server.');
+      
       const response = await fetch('/api/swagger-bolt', {
         method: 'POST',
         headers: {
