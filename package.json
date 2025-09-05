@@ -1,0 +1,9 @@
+@@ .. @@
+   "scripts": {
+-    "dev": "vite",
++    "dev": "concurrently \"npm run server\" \"npm run client\"",
++    "client": "vite",
++    "server": "nodemon server/index.ts",
+     "build": "tsc && vite build",
+     "preview": "vite preview"
+   },
