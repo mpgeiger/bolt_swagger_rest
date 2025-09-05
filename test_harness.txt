@@ -1,0 +1,189 @@
+Prompt for Bolt.new — “Swagger-Bolt Test Harness”
+
+Goal
+Create a UI page to paste an OpenAPI/Swagger JSON document, invoke POST /api/swagger-bolt, and display the returned text/plain descriptors exactly as plain text.
+
+Page
+	•	Name: Swagger-Bolt – Test Harness
+	•	Route: GET /tools/swagger-bolt
+	•	Layout: Two columns on desktop (left: input, right: output); stacked on mobile.
+
+Left column (Input)
+	1.	Textarea (id: inputSpec, label: “Swagger/OpenAPI JSON”)
+	•	Height: 420–520px
+	•	Monospace font
+	•	Placeholder: “Paste OpenAPI/Swagger JSON…”
+	•	Default value: preload with the small v3 sample below (so users can click and run immediately).
+	2.	Row of controls
+	•	Button (id: btnRun, text: “Generate Descriptors”)
+	•	Button (id: btnClear, text: “Clear”, subtle)
+	•	Checkbox (id: chkPretty, label: “Pretty-print input before send”, default: off)
+	•	Text (id: lblChars, small, gray) — live character count of textarea.
+	3.	Validation area (id: inputError, red, hidden by default)
+	•	Shows parse errors like “Invalid JSON at character X”.
+
+Right column (Output)
+	1.	Heading: “Output (text/plain)”
+	2.	Preformatted block (id: txtOutput, read-only, monospace, white-space: pre; wrap: pre-wrap)
+	•	Fills available height
+	3.	Toolbar
+	•	Button (id: btnCopy, text: “Copy output”)
+	•	Badge (id: badgeStatus, shows HTTP status and elapsed ms after run)
+	•	Toggle (id: toggleWordWrap, label: “Wrap lines”, default: on → toggles CSS white-space)
+
+Behavior / Logic
+	•	On Generate Descriptors:
+	1.	Read inputSpec value.
+	2.	Try JSON.parse. If it fails, show inputError with the message and do not call the API.
+	3.	If chkPretty is checked, re-stringify the parsed JSON with indentation (2 spaces) and update the textarea.
+	4.	fetch('/api/swagger-bolt', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'text/plain' }, body: <JSON string> })
+	5.	Time the call; set badgeStatus to, e.g., 200 OK • 118ms (or 400 Bad Request • 45ms).
+	6.	Read response as text and place it into txtOutput verbatim (no extra trimming or formatting).
+	7.	If non-2xx, still show the returned text (error message from service) in txtOutput.
+	•	Clear: empties inputSpec, hides inputError, clears txtOutput, clears badgeStatus.
+	•	Copy output: copies the content of txtOutput to clipboard; briefly show a “Copied!” toast.
+	•	Word wrap: toggles txtOutput white-space between pre (no wrap) and pre-wrap (wrap).
+	•	Character counter: updates lblChars live (e.g., “2,413 chars”).
+
+Styling Hints
+	•	Monospace for both input and output.
+	•	Output area should preserve tabs and newlines exactly (white-space: pre or pre-wrap).
+	•	Make the run button primary; clear subtle; copy secondary.
+
+Client Script (pseudo / workable JS)
+
+// Elements
+const ta = el('inputSpec');
+const err = el('inputError');
+const out = el('txtOutput');
+const run = el('btnRun');
+const clearBtn = el('btnClear');
+const copyBtn = el('btnCopy');
+const pretty = el('chkPretty');
+const badge = el('badgeStatus');
+const wrap = el('toggleWordWrap');
+const chars = el('lblChars');
+
+function el(id){ return document.getElementById(id); }
+
+function setOutput(text){ out.textContent = text ?? ''; }
+function setError(msg){ err.textContent = msg ?? ''; err.style.display = msg ? 'block' : 'none'; }
+function setBadge(text){ badge.textContent = text ?? ''; badge.style.display = text ? 'inline-flex' : 'none'; }
+function updateChars(){ chars.textContent = `${ta.value.length.toLocaleString()} chars`; }
+
+wrap.addEventListener('change', () => {
+  out.style.whiteSpace = wrap.checked ? 'pre-wrap' : 'pre';
+});
+
+ta.addEventListener('input', () => {
+  setError('');
+  updateChars();
+});
+updateChars();
+
+run.addEventListener('click', async () => {
+  setError('');
+  setOutput('');
+  setBadge('');
+  let obj;
+  try {
+    obj = JSON.parse(ta.value);
+  } catch (e) {
+    setError(`Invalid JSON: ${e.message}`);
+    return;
+  }
+  const body = pretty.checked ? JSON.stringify(obj, null, 2) : JSON.stringify(obj);
+  const t0 = performance.now();
+  try {
+    const res = await fetch('/api/swagger-bolt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'text/plain' },
+      body
+    });
+    const text = await res.text();
+    const ms = Math.max(1, Math.round(performance.now() - t0));
+    setBadge(`${res.status} ${res.statusText} • ${ms}ms`);
+    setOutput(text);
+  } catch (e) {
+    setBadge('Network error');
+    setOutput(String(e));
+  }
+});
+
+clearBtn.addEventListener('click', () => {
+  ta.value = '';
+  setError('');
+  setOutput('');
+  setBadge('');
+  updateChars();
+});
+
+copyBtn.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(out.textContent || '');
+    // show a toast/snackbar in your UI framework; fallback:
+    copyBtn.textContent = 'Copied!';
+    setTimeout(() => (copyBtn.textContent = 'Copy output'), 1200);
+  } catch {}
+});
+
+Sample default JSON to preload into the textarea (small, valid OAS v3):
+
+{
+  "openapi": "3.0.3",
+  "servers": [{ "url": "https://api.example.com/v1" }],
+  "paths": {
+    "/pets": {
+      "get": {
+        "summary": "List pets",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "name": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "CreatePet",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "example": { "id": 1, "name": "Fido" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+Acceptance checklist
+	•	Pasting invalid JSON shows a red inline error and prevents API call.
+	•	Valid JSON calls POST /api/swagger-bolt with Content-Type: application/json.
+	•	Response is read as text and rendered verbatim in the output <pre>.
+	•	Copy button places the output on clipboard.
+	•	Word-wrap toggle works.
+	•	Status badge shows HTTP status and elapsed ms.
+
+⸻
