@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, Play, X, FileText, Clock, CheckCircle } from 'lucide-react';
 
 const DEFAULT_SWAGGER = `{
