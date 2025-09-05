@@ -64,10 +64,6 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  if (currentPage === 'trainer') {
-    return <TrainerPage />;
-  }
-
   useEffect(() => {
     setCharCount(inputSpec.length);
   }, [inputSpec]);
@@ -138,6 +134,10 @@ function App() {
   const formatCharCount = (count: number) => {
     return `${count.toLocaleString()} chars`;
   };
+
+  if (currentPage === 'trainer') {
+    return <TrainerPage />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
