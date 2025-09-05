@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/components/BoltOutput.tsx","./src/components/ExampleSection.tsx","./src/components/Header.tsx","./src/components/SwaggerInput.tsx","./server/index.ts","./server/routes/swagger-bolt.ts","./server/services/swagger-converter.ts"],"errors":true,"version":"5.9.2"}
