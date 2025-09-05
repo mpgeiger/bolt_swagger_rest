@@ -1,8 +1,3 @@
-
-Got it—here’s a ready-to-paste prompt for Bolt.new that will create a REST API called swagger-bolt. It converts a Swagger/OpenAPI JSON payload into a text/plain list of Bolt.new-style API descriptors.
-
-⸻
-
 Prompt for Bolt.new
 
 Goal
@@ -189,6 +184,3 @@ Non-functional
 	•	Keep runtime under a few hundred milliseconds for typical specs (<2MB).
 	•	Memory-safe with large schemas: avoid deep recursion; cap skeleton depth to 2–3 levels if needed.
 
-⸻
-
-If you’d like, I can tailor this prompt to a specific runtime (e.g., “generate .NET 8 minimal API code” or “Node/TypeScript with Express/Fastify”)—but this version is ready to hand to Bolt.new as a high-level instruction to build the service.
