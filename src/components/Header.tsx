@@ -1,4 +1,3 @@
-import React from 'react';
 import { FileText, ArrowRight } from 'lucide-react';
 
 export function Header() {

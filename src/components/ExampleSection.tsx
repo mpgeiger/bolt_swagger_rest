@@ -1,4 +1,3 @@
-import React from 'react';
 import { Play, BookOpen } from 'lucide-react';
 
 interface ExampleSectionProps {
