@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Copy, Play, X, FileText, Clock, CheckCircle } from 'lucide-react';
+import { Copy, Play, X, FileText, Clock, CheckCircle, Settings } from 'lucide-react';
 import { convertSwaggerToBolt, isValidSwaggerDoc } from './services/swagger-converter';
+import { TrainerPage } from './components/TrainerPage';
 
 const DEFAULT_SWAGGER = `{
   "openapi": "3.0.3",
@@ -52,6 +53,7 @@ const DEFAULT_SWAGGER = `{
 }`;
 
 function App() {
+  const [currentPage, setCurrentPage] = useState<'converter' | 'trainer'>('converter');
   const [inputSpec, setInputSpec] = useState(DEFAULT_SWAGGER);
   const [output, setOutput] = useState('');
   const [inputError, setInputError] = useState('');
@@ -61,6 +63,10 @@ function App() {
   const [charCount, setCharCount] = useState(0);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  if (currentPage === 'trainer') {
+    return <TrainerPage />;
+  }
 
   useEffect(() => {
     setCharCount(inputSpec.length);
@@ -138,11 +144,21 @@ function App() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
             <FileText className="w-7 h-7 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900">
               Swagger-Bolt – Test Harness
             </h1>
+            </div>
+            
+            <button
+              onClick={() => setCurrentPage('trainer')}
+              className="flex items-center px-3 py-2 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition-colors"
+            >
+              <Settings className="w-4 h-4 mr-1" />
+              Advanced Trainer
+            </button>
           </div>
           <p className="mt-1 text-sm text-gray-600">
             Test the Swagger to Bolt.new converter API endpoint
