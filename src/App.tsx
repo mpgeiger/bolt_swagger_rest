@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Copy, Play, X, RotateCcw, FileText, Clock, CheckCircle } from 'lucide-react';
+import { Copy, Play, X, FileText, Clock, CheckCircle } from 'lucide-react';
 
 const DEFAULT_SWAGGER = `{
   "openapi": "3.0.3",
@@ -142,7 +142,7 @@ function App() {
           <div className="flex items-center space-x-3">
             <FileText className="w-7 h-7 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900">
-              Swagger-Bolt Test Harness
+              Swagger-Bolt – Test Harness
             </h1>
           </div>
           <p className="mt-1 text-sm text-gray-600">
@@ -164,6 +164,7 @@ function App() {
               {/* Controls Row */}
               <div className="flex flex-wrap items-center gap-3 mb-3">
                 <button
+                  id="btnRun"
                   onClick={handleGenerate}
                   disabled={loading || !inputSpec.trim()}
                   className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-md transition-colors"
@@ -182,6 +183,7 @@ function App() {
                 </button>
                 
                 <button
+                  id="btnClear"
                   onClick={handleClear}
                   className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
                 >
@@ -191,6 +193,7 @@ function App() {
                 
                 <label className="flex items-center space-x-2 text-sm">
                   <input
+                    id="chkPretty"
                     type="checkbox"
                     checked={prettyPrint}
                     onChange={(e) => setPrettyPrint(e.target.checked)}
@@ -201,14 +204,14 @@ function App() {
               </div>
 
               {/* Character Count */}
-              <div className="text-xs text-gray-500">
+              <div id="lblChars" className="text-xs text-gray-500">
                 {formatCharCount(charCount)}
               </div>
             </div>
 
             {/* Input Error */}
             {inputError && (
-              <div className="mx-4 mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
+              <div id="inputError" className="mx-4 mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
                 <p className="text-sm text-red-700">{inputError}</p>
               </div>
             )}
@@ -216,11 +219,12 @@ function App() {
             {/* Textarea */}
             <div className="flex-1 p-4">
               <textarea
+                id="inputSpec"
                 value={inputSpec}
                 onChange={(e) => handleInputChange(e.target.value)}
                 placeholder="Paste OpenAPI/Swagger JSON…"
                 className="w-full h-full resize-none border border-gray-300 rounded-md p-3 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                style={{ minHeight: '400px' }}
+                style={{ minHeight: '420px' }}
               />
             </div>
           </div>
@@ -235,13 +239,14 @@ function App() {
                 
                 <div className="flex items-center space-x-3">
                   {statusBadge && (
-                    <div className="flex items-center px-2 py-1 bg-gray-100 rounded-md text-xs font-medium text-gray-700">
+                    <div id="badgeStatus" className="flex items-center px-2 py-1 bg-gray-100 rounded-md text-xs font-medium text-gray-700">
                       <Clock className="w-3 h-3 mr-1" />
                       {statusBadge}
                     </div>
                   )}
                   
                   <button
+                    id="btnCopy"
                     onClick={handleCopy}
                     disabled={!output}
                     className="flex items-center px-3 py-1 text-sm bg-green-100 hover:bg-green-200 disabled:bg-gray-100 text-green-700 disabled:text-gray-400 rounded-md transition-colors"
@@ -264,6 +269,7 @@ function App() {
               {/* Word Wrap Toggle */}
               <label className="flex items-center space-x-2 text-sm">
                 <input
+                  id="toggleWordWrap"
                   type="checkbox"
                   checked={wordWrap}
                   onChange={(e) => setWordWrap(e.target.checked)}
@@ -276,10 +282,11 @@ function App() {
             {/* Output Area */}
             <div className="flex-1 p-4">
               <pre
+                id="txtOutput"
                 className="w-full h-full bg-gray-50 border border-gray-200 rounded-md p-3 font-mono text-sm overflow-auto"
                 style={{
                   whiteSpace: wordWrap ? 'pre-wrap' : 'pre',
-                  minHeight: '400px'
+                  minHeight: '420px'
                 }}
               >
                 {output || (loading ? 'Processing...' : 'Output will appear here after conversion')}
