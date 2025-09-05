@@ -226,3 +226,17 @@ function isHttpMethod(method: string): boolean {
   const httpMethods = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head'];
   return httpMethods.includes(method.toLowerCase());
 }
+
+export function isValidSwaggerDoc(doc: any): boolean {
+  // Check for OpenAPI 3.x
+  if (doc.openapi && typeof doc.openapi === 'string' && doc.openapi.startsWith('3.')) {
+    return doc.paths && typeof doc.paths === 'object';
+  }
+  
+  // Check for Swagger 2.0
+  if (doc.swagger && doc.swagger === '2.0') {
+    return doc.paths && typeof doc.paths === 'object';
+  }
+  
+  return false;
+}

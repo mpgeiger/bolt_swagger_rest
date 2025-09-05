@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Copy, Play, X, FileText, Clock, CheckCircle } from 'lucide-react';
+import { convertSwaggerToBolt, isValidSwaggerDoc } from './services/swagger-converter';
 
 const DEFAULT_SWAGGER = `{
   "openapi": "3.0.3",
@@ -85,33 +86,27 @@ function App() {
       return;
     }
 
-    const body = prettyPrint ? JSON.stringify(parsedJson, null, 2) : JSON.stringify(parsedJson);
     if (prettyPrint) {
-      setInputSpec(body);
+      setInputSpec(JSON.stringify(parsedJson, null, 2));
+    }
+
+    // Validate if it's a valid Swagger/OpenAPI document
+    if (!isValidSwaggerDoc(parsedJson)) {
+      setInputError('Body must contain a valid OpenAPI/Swagger JSON document.');
+      setLoading(false);
+      return;
     }
 
     const startTime = performance.now();
     try {
-      // For deployment, we need to handle the API endpoint differently
-      // Since this is a static deployment, we'll show a message about the API being unavailable
-      throw new Error('API endpoint not available in static deployment. This demo requires a backend server.');
-      
-      const response = await fetch('/api/swagger-bolt', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'text/plain'
-        },
-        body
-      });
-
-      const text = await response.text();
+      // Process the conversion client-side
+      const text = convertSwaggerToBolt(parsedJson);
       const elapsed = Math.max(1, Math.round(performance.now() - startTime));
-      setStatusBadge(`${response.status} ${response.statusText} • ${elapsed}ms`);
+      setStatusBadge(`200 OK • ${elapsed}ms`);
       setOutput(text);
     } catch (error) {
-      setStatusBadge('Network error');
-      setOutput(String(error));
+      setStatusBadge('Processing error');
+      setInputError(String(error));
     } finally {
       setLoading(false);
     }
